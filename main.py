@@ -409,6 +409,29 @@ class CineScope(tk.Tk):
             ipady=10
         )
 
+        self.add_hover_effect(
+            button,
+            SIDEBAR,
+            CARD_HOVER
+        )
+
+
+    # =====================================================
+    # BUTTON HOVER EFFECT
+    # =====================================================
+
+    def add_hover_effect(self, button, normal_bg, hover_bg):
+
+        button.bind(
+            "<Enter>",
+            lambda event: button.config(bg=hover_bg)
+        )
+
+        button.bind(
+            "<Leave>",
+            lambda event: button.config(bg=normal_bg)
+        )
+
 
     # =====================================================
     # SCROLLING
@@ -804,6 +827,12 @@ class CineScope(tk.Tk):
             padx=5
         )
 
+        self.add_hover_effect(
+            details_button,
+            ACCENT,
+            ACCENT_HOVER
+        )
+
 
         if watchlist_card:
 
@@ -827,15 +856,33 @@ class CineScope(tk.Tk):
                 padx=5
             )
 
+            self.add_hover_effect(
+                remove_button,
+                "#333b45",
+                "#4a535e"
+            )
+
         else:
+
+            saved = self.is_movie_saved(movie)
+
+            if saved:
+                button_text = "❤️ Saved"
+                button_bg = ACCENT
+            else:
+                button_text = "♡ Save"
+                button_bg = "#252f3b"
 
             watch_button = tk.Button(
                 button_frame,
-                text="❤️ Save",
-                command=lambda m=movie: self.add_watchlist(m),
-                bg="#252f3b",
+                text=button_text,
+                command=lambda m=movie, b=None: self.add_watchlist(
+                    m,
+                    watch_button
+                ),
+                bg=button_bg,
                 fg=WHITE,
-                activebackground=CARD_HOVER,
+                activebackground=ACCENT_HOVER,
                 activeforeground=WHITE,
                 relief="flat",
                 cursor="hand2"
@@ -845,6 +892,19 @@ class CineScope(tk.Tk):
                 side="left",
                 padx=5
             )
+
+            if saved:
+                self.add_hover_effect(
+                    watch_button,
+                    ACCENT,
+                    ACCENT_HOVER
+                )
+            else:
+                self.add_hover_effect(
+                    watch_button,
+                    "#252f3b",
+                    CARD_HOVER
+                )
 
 
         return card
@@ -1377,23 +1437,55 @@ class CineScope(tk.Tk):
         # WATCHLIST BUTTON
         # -------------------------------------------------
 
-        tk.Button(
+        saved = self.is_movie_saved(movie)
+
+        if saved:
+            watchlist_text = "❤️ Saved"
+            watchlist_bg = ACCENT
+        else:
+            watchlist_text = "♡ Add to Watchlist"
+            watchlist_bg = "#252f3b"
+
+
+        watchlist_button = tk.Button(
             info,
-            text="❤️ Add to Watchlist",
-            command=lambda: self.add_watchlist(movie),
-            bg=ACCENT,
+            text=watchlist_text,
+            command=lambda: self.add_watchlist(
+                movie,
+                watchlist_button
+            ),
+            bg=watchlist_bg,
             fg=WHITE,
             activebackground=ACCENT_HOVER,
             activeforeground=WHITE,
             relief="flat",
             font=("Arial", 11, "bold"),
             cursor="hand2"
-        ).pack(
+        )
+
+        watchlist_button.pack(
             anchor="w",
             pady=(20, 10),
             ipadx=10,
             ipady=8
         )
+
+
+        if saved:
+
+            self.add_hover_effect(
+                watchlist_button,
+                ACCENT,
+                ACCENT_HOVER
+            )
+
+        else:
+
+            self.add_hover_effect(
+                watchlist_button,
+                "#252f3b",
+                CARD_HOVER
+            )
 
 
         # =================================================
@@ -1834,12 +1926,37 @@ class CineScope(tk.Tk):
 
         webbrowser.open(url)
 
+    # =====================================================
+    # CHECK WATCHLIST
+    # =====================================================
+
+    def is_movie_saved(self, movie):
+
+        if not self.current_user:
+            return False
+
+        movies = database.get_watchlist(
+            self.current_user[0]
+        )
+
+        movie_id = movie.get("id")
+        media_type = movie.get("media_type", "movie")
+
+        for saved_movie in movies:
+
+            if (
+                saved_movie[0] == movie_id
+                and (saved_movie[1] or "movie") == media_type
+            ):
+                return True
+
+        return False
 
     # =====================================================
     # ADD TO WATCHLIST
     # =====================================================
 
-    def add_watchlist(self, movie):
+    def add_watchlist(self, movie, button=None):
 
         if not self.current_user:
 
@@ -1853,10 +1970,35 @@ class CineScope(tk.Tk):
             return
 
 
+        if self.is_movie_saved(movie):
+
+            if button:
+                button.config(
+                    text="❤️ Saved",
+                    bg=ACCENT
+                )
+
+            return
+
+
         database.add_to_watchlist(
             self.current_user[0],
             movie
         )
+
+
+        if button:
+
+            button.config(
+                text="❤️ Saved",
+                bg=ACCENT
+            )
+
+            self.add_hover_effect(
+                button,
+                ACCENT,
+                ACCENT_HOVER
+            )
 
 
         messagebox.showinfo(
