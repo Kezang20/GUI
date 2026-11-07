@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import messagebox
 from pathlib import Path
@@ -10,9 +11,7 @@ from config import BG, CARD, MUTED, WHITE
 class HomeMixin:
 
     def show_home(self):
-
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -21,12 +20,10 @@ class HomeMixin:
             fg=WHITE,
             font=("Arial", 30, "bold")
         )
-
         title.pack(
             anchor="w",
             pady=(10, 5)
         )
-
 
         subtitle = tk.Label(
             self.content,
@@ -35,28 +32,25 @@ class HomeMixin:
             fg=MUTED,
             font=("Arial", 13)
         )
-
         subtitle.pack(
             anchor="w",
             pady=(0, 20)
         )
-
 
         hero = tk.Canvas(
             self.content,
             bg="#050505",
             height=220
         )
-
         hero.pack(
             fill="x",
             pady=(0, 30)
         )
-
         hero.pack_propagate(False)
 
         hero.update_idletasks()
         hero_image = self._load_hero_image(hero)
+
         if hero_image:
             hero.image = hero_image
             hero.create_image(
@@ -67,6 +61,7 @@ class HomeMixin:
             )
 
         center_x = max(hero.winfo_width(), 800) // 2
+
         hero.create_text(
             center_x + 2,
             91,
@@ -96,40 +91,33 @@ class HomeMixin:
             font=("Arial", 13)
         )
 
-
-        self.section_title(
-            "🔥 Trending Now"
-        )
+        self.section_title("🔥 Trending Now")
 
         trending = self.get_movies(
             tmdb.trending_movies,
             limit=6
         )
+        self.create_movie_grid(trending)
 
-        self.create_movie_grid(
-            trending
-        )
-
-
-        self.section_title(
-            "⭐ Top Rated"
-        )
+        self.section_title("⭐ Top Rated")
 
         top = self.get_movies(
             tmdb.top_rated_movies,
             limit=6
         )
-
-        self.create_movie_grid(
-            top
-        )
+        self.create_movie_grid(top)
 
     def _load_hero_image(self, hero):
-        image_path = Path(__file__).parent / "assets" / "vintage-filmstrip-texture.jpg"
+        image_path = (
+            Path(__file__).parent
+            / "assets"
+            / "vintage-filmstrip-texture.jpg"
+        )
 
         try:
             hero.update_idletasks()
             width = max(hero.winfo_width(), 800)
+
             image = Image.open(image_path).convert("RGB")
             image = ImageOps.fit(
                 image,
@@ -137,17 +125,17 @@ class HomeMixin:
                 method=Image.Resampling.LANCZOS
             )
             image = ImageEnhance.Brightness(image).enhance(0.62)
+
             return ImageTk.PhotoImage(image)
+
         except (FileNotFoundError, OSError):
             return None
-
 
     # =====================================================
     # SECTION TITLE
     # =====================================================
 
     def section_title(self, text):
-
         label = tk.Label(
             self.content,
             text=text,
@@ -155,32 +143,23 @@ class HomeMixin:
             fg=WHITE,
             font=("Arial", 20, "bold")
         )
-
         label.pack(
             anchor="w",
             pady=(20, 15)
         )
-
 
     # =====================================================
     # GET MOVIES
     # =====================================================
 
     def get_movies(self, function, limit=6):
-
         try:
-
             movies = function()
-
             return movies[:limit]
 
         except Exception as error:
-
             messagebox.showerror(
                 "TMDB Error",
                 str(error)
             )
-
             return []
-
-
