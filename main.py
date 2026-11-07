@@ -30,6 +30,7 @@ class CineScope(
         self.configure(bg="#0b0f14")
 
         database.create_tables()
+    
 
         self.current_user = None
         self.poster_cache = {}
