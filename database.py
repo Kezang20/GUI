@@ -222,6 +222,7 @@ def mark_watched(user_id, movie_id):
         movie_id
     ))
 
+    
     conn.commit()
     conn.close()
 
@@ -247,7 +248,5 @@ def is_in_watchlist(user_id, movie_id, media_type="movie"):
     ))
 
     result = cursor.fetchone()
-
     conn.close()
-
     return result is not None
