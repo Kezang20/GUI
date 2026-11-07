@@ -23,6 +23,10 @@ from config import (
 
 class CatalogMixin:
 
+    # =====================================================
+    # MOVIE GRID
+    # =====================================================
+
     def create_movie_grid(self, movies):
 
         if not movies:
@@ -35,12 +39,9 @@ class CatalogMixin:
                 font=("Arial", 13)
             )
 
-            label.pack(
-                pady=30
-            )
+            label.pack(pady=40)
 
             return
-
 
         grid = tk.Frame(
             self.content,
@@ -48,30 +49,28 @@ class CatalogMixin:
         )
 
         grid.pack(
-            fill="x"
+            fill="x",
+            padx=5,
+            pady=10
         )
-
 
         for index, movie in enumerate(movies):
 
             row = index // 3
             column = index % 3
 
-
             card = self.create_movie_card(
                 grid,
                 movie
             )
 
-
             card.grid(
                 row=row,
                 column=column,
-                padx=10,
-                pady=10,
+                padx=15,
+                pady=15,
                 sticky="nsew"
             )
-
 
         for column in range(3):
 
@@ -79,7 +78,6 @@ class CatalogMixin:
                 column,
                 weight=1
             )
-
 
     # =====================================================
     # MOVIE CARD
@@ -101,21 +99,16 @@ class CatalogMixin:
 
         card.pack_propagate(False)
 
-
         poster_label = tk.Label(
             card,
             bg=CARD
         )
 
         poster_label.pack(
-            pady=10
+            pady=(15, 8)
         )
 
-
-        poster_path = movie.get(
-            "poster_path"
-        )
-
+        poster_path = movie.get("poster_path")
 
         if poster_path:
 
@@ -132,13 +125,11 @@ class CatalogMixin:
                 font=("Arial", 12)
             )
 
-
         title = (
             movie.get("title")
             or movie.get("name")
             or "Unknown"
         )
-
 
         title_label = tk.Label(
             card,
@@ -150,16 +141,14 @@ class CatalogMixin:
         )
 
         title_label.pack(
-            padx=10,
-            pady=5
+            padx=15,
+            pady=(8, 5)
         )
-
 
         rating = movie.get(
             "vote_average",
             0
         ) or 0
-
 
         rating_label = tk.Label(
             card,
@@ -169,8 +158,9 @@ class CatalogMixin:
             font=("Arial", 11)
         )
 
-        rating_label.pack()
-
+        rating_label.pack(
+            pady=(2, 5)
+        )
 
         button_frame = tk.Frame(
             card,
@@ -178,9 +168,8 @@ class CatalogMixin:
         )
 
         button_frame.pack(
-            pady=10
+            pady=(8, 12)
         )
-
 
         details_button = tk.Button(
             button_frame,
@@ -196,7 +185,7 @@ class CatalogMixin:
 
         details_button.pack(
             side="left",
-            padx=5
+            padx=6
         )
 
         self.add_hover_effect(
@@ -204,7 +193,6 @@ class CatalogMixin:
             ACCENT,
             ACCENT_HOVER
         )
-
 
         if watchlist_card:
 
@@ -225,7 +213,7 @@ class CatalogMixin:
 
             remove_button.pack(
                 side="left",
-                padx=5
+                padx=6
             )
 
             self.add_hover_effect(
@@ -262,25 +250,26 @@ class CatalogMixin:
 
             watch_button.pack(
                 side="left",
-                padx=5
+                padx=6
             )
 
             if saved:
+
                 self.add_hover_effect(
                     watch_button,
                     ACCENT,
                     ACCENT_HOVER
                 )
+
             else:
+
                 self.add_hover_effect(
                     watch_button,
                     "#252f3b",
                     CARD_HOVER
                 )
 
-
         return card
-
 
     # =====================================================
     # LOAD POSTER
@@ -295,12 +284,9 @@ class CatalogMixin:
         if not poster_path:
             return
 
-
         if poster_path in self.poster_cache:
 
-            photo = self.poster_cache[
-                poster_path
-            ]
+            photo = self.poster_cache[poster_path]
 
             label.configure(
                 image=photo,
@@ -310,7 +296,6 @@ class CatalogMixin:
             label.image = photo
 
             return
-
 
         def download_poster():
 
@@ -328,22 +313,16 @@ class CatalogMixin:
 
                 response.raise_for_status()
 
-
                 image = Image.open(
                     BytesIO(response.content)
                 ).convert("RGB")
-
 
                 image = image.resize(
                     (150, 210),
                     Image.Resampling.LANCZOS
                 )
 
-
-                photo = ImageTk.PhotoImage(
-                    image
-                )
-
+                photo = ImageTk.PhotoImage(image)
 
                 self.after(
                     0,
@@ -353,7 +332,6 @@ class CatalogMixin:
                     photo
                 )
 
-
             except Exception:
 
                 self.after(
@@ -362,12 +340,10 @@ class CatalogMixin:
                     label
                 )
 
-
         threading.Thread(
             target=download_poster,
             daemon=True
         ).start()
-
 
     def _set_poster(
         self,
@@ -378,9 +354,7 @@ class CatalogMixin:
 
         if label.winfo_exists():
 
-            self.poster_cache[
-                poster_path
-            ] = photo
+            self.poster_cache[poster_path] = photo
 
             label.configure(
                 image=photo,
@@ -388,7 +362,6 @@ class CatalogMixin:
             )
 
             label.image = photo
-
 
     def _poster_failed(self, label):
 
@@ -400,7 +373,6 @@ class CatalogMixin:
                 font=("Arial", 12)
             )
 
-
     # =====================================================
     # SEARCH
     # =====================================================
@@ -408,7 +380,6 @@ class CatalogMixin:
     def search(self):
 
         query = self.search_entry.get().strip()
-
 
         if (
             not query
@@ -422,9 +393,7 @@ class CatalogMixin:
 
             return
 
-
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -436,20 +405,16 @@ class CatalogMixin:
 
         title.pack(
             anchor="w",
-            pady=(10, 20)
+            padx=10,
+            pady=(20, 25)
         )
-
 
         movies = self.get_movies(
             lambda: tmdb.search_movies(query),
             limit=12
         )
 
-
-        self.create_movie_grid(
-            movies
-        )
-
+        self.create_movie_grid(movies)
 
     # =====================================================
     # TRENDING
@@ -458,7 +423,6 @@ class CatalogMixin:
     def show_trending(self):
 
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -470,20 +434,16 @@ class CatalogMixin:
 
         title.pack(
             anchor="w",
-            pady=20
+            padx=10,
+            pady=(20, 25)
         )
-
 
         movies = self.get_movies(
             tmdb.trending_movies,
             limit=12
         )
 
-
-        self.create_movie_grid(
-            movies
-        )
-
+        self.create_movie_grid(movies)
 
     # =====================================================
     # GENRE FILTER
@@ -493,13 +453,9 @@ class CatalogMixin:
 
         selected_genre = self.genre_var.get()
 
-        genre_id = GENRES.get(
-            selected_genre
-        )
-
+        genre_id = GENRES.get(selected_genre)
 
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -511,9 +467,9 @@ class CatalogMixin:
 
         title.pack(
             anchor="w",
-            pady=(10, 20)
+            padx=10,
+            pady=(20, 25)
         )
-
 
         loading = tk.Label(
             self.content,
@@ -523,13 +479,9 @@ class CatalogMixin:
             font=("Arial", 13)
         )
 
-        loading.pack(
-            pady=30
-        )
-
+        loading.pack(pady=35)
 
         self.update_idletasks()
-
 
         try:
 
@@ -539,21 +491,13 @@ class CatalogMixin:
 
             else:
 
-                movies = tmdb.movies_by_genre(
-                    genre_id
-                )
-
+                movies = tmdb.movies_by_genre(genre_id)
 
             loading.destroy()
 
-
-            self.create_movie_grid(
-                movies[:12]
-            )
-
+            self.create_movie_grid(movies[:12])
 
             self.canvas.yview_moveto(0)
-
 
         except Exception as error:
 
@@ -564,7 +508,6 @@ class CatalogMixin:
                 str(error)
             )
 
-
     # =====================================================
     # TOP RATED
     # =====================================================
@@ -572,7 +515,6 @@ class CatalogMixin:
     def show_top_rated(self):
 
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -584,16 +526,13 @@ class CatalogMixin:
 
         title.pack(
             anchor="w",
-            pady=20
+            padx=10,
+            pady=(20, 25)
         )
-
 
         movies = self.get_movies(
             tmdb.top_rated_movies,
             limit=12
         )
 
-
-        self.create_movie_grid(
-            movies
-        )
+        self.create_movie_grid(movies)
