@@ -99,6 +99,8 @@ def hidden_gems():
     return data.get("results", [])
 
 
+
+
 def movies_by_year(year):
 
     data = tmdb_request(
@@ -107,6 +109,8 @@ def movies_by_year(year):
             "primary_release_year": year,
             "sort_by": "popularity.desc"
         }
+
+        
     )
 
     return data.get("results", [])
