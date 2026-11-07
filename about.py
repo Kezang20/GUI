@@ -1,10 +1,8 @@
 import tkinter as tk
-
 from config import BG, CARD, TEXT, WHITE
 
 
 class AboutMixin:
-
     def show_about(self):
         self.clear_content()
 
