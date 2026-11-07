@@ -1,3 +1,4 @@
+
 import re
 import tkinter as tk
 from tkinter import messagebox
@@ -7,9 +8,7 @@ from config import ACCENT, ACCENT_HOVER, BG, CARD, CARD_HOVER, MUTED, TEXT, WHIT
 
 
 class AccountMixin:
-
     def add_placeholder(self, entry, placeholder, password=False):
-
         entry.placeholder = placeholder
         entry.has_placeholder = tk.BooleanVar(value=True)
         entry.insert(0, placeholder)
@@ -19,20 +18,21 @@ class AccountMixin:
             entry.config(show="")
 
         def focus_in(event):
-
             if entry.has_placeholder.get():
                 entry.delete(0, tk.END)
                 entry.config(fg=WHITE)
+
                 if password:
                     entry.config(show="*")
+
                 entry.has_placeholder.set(False)
 
         def focus_out(event):
-
             if not entry.get():
                 entry.insert(0, placeholder)
                 entry.config(fg=MUTED)
                 entry.has_placeholder.set(True)
+
                 if password:
                     entry.config(show="")
 
@@ -40,21 +40,16 @@ class AccountMixin:
         entry.bind("<FocusOut>", focus_out)
 
     def is_valid_email(self, email):
-
         pattern = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
         return re.match(pattern, email) is not None
 
-
     def is_valid_name(self, name):
-
         return bool(name) and all(
             character.isalpha() or character == " "
             for character in name
         )
 
-
     def is_valid_password(self, password):
-
         return (
             len(password) >= 8
             and any(character.isupper() for character in password)
@@ -62,10 +57,12 @@ class AccountMixin:
             and any(character.isdigit() for character in password)
         )
 
+    # =====================================================
+    # LOGIN
+    # =====================================================
+
     def show_login(self):
-
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -74,11 +71,7 @@ class AccountMixin:
             fg=WHITE,
             font=("Arial", 30, "bold")
         )
-
-        title.pack(
-            pady=(50, 30)
-        )
-
+        title.pack(pady=(50, 30))
 
         form = tk.Frame(
             self.content,
@@ -86,11 +79,7 @@ class AccountMixin:
             padx=40,
             pady=40
         )
-
-        form.pack(
-            ipadx=100
-        )
-
+        form.pack(ipadx=100)
 
         tk.Label(
             form,
@@ -98,10 +87,7 @@ class AccountMixin:
             bg=CARD,
             fg=TEXT,
             font=("Arial", 11)
-        ).pack(
-            anchor="w"
-        )
-
+        ).pack(anchor="w")
 
         email = tk.Entry(
             form,
@@ -111,14 +97,15 @@ class AccountMixin:
             relief="flat",
             font=("Arial", 12)
         )
-
         email.pack(
             fill="x",
             pady=(5, 20),
             ipady=8
         )
-        self.add_placeholder(email, "Enter your email (e.g. Dorji@gmail.com)")
-
+        self.add_placeholder(
+            email,
+            "Enter your email (e.g. Dorji@gmail.com)"
+        )
 
         tk.Label(
             form,
@@ -126,10 +113,7 @@ class AccountMixin:
             bg=CARD,
             fg=TEXT,
             font=("Arial", 11)
-        ).pack(
-            anchor="w"
-        )
-
+        ).pack(anchor="w")
 
         password = tk.Entry(
             form,
@@ -140,22 +124,29 @@ class AccountMixin:
             relief="flat",
             font=("Arial", 12)
         )
-
         password.pack(
             fill="x",
             pady=(5, 20),
             ipady=8
         )
-        self.add_placeholder(password, "Enter your password", password=True)
-
+        self.add_placeholder(
+            password,
+            "Enter your password",
+            password=True
+        )
 
         def login():
+            login_email = (
+                "" if email.has_placeholder.get()
+                else email.get().strip()
+            )
 
-            login_email = "" if email.has_placeholder.get() else email.get().strip()
-            login_password = "" if password.has_placeholder.get() else password.get()
+            login_password = (
+                "" if password.has_placeholder.get()
+                else password.get()
+            )
 
             if not login_email or not login_password:
-
                 messagebox.showwarning(
                     "Login",
                     "Please enter both email and password."
@@ -163,7 +154,6 @@ class AccountMixin:
                 return
 
             if not self.is_valid_email(login_email):
-
                 messagebox.showwarning(
                     "Login",
                     "Enter a valid email address."
@@ -175,33 +165,25 @@ class AccountMixin:
                 login_password
             )
 
-
             if user:
-
                 self.current_user = user
-
 
                 self.login_button.config(
                     text=f"👤 {user[1]}"
                 )
-
 
                 messagebox.showinfo(
                     "Login",
                     f"Welcome back, {user[1]}!"
                 )
 
-
                 self.show_home()
 
-
             else:
-
                 messagebox.showerror(
                     "Login Failed",
                     "Incorrect email or password."
                 )
-
 
         tk.Button(
             form,
@@ -220,7 +202,6 @@ class AccountMixin:
             ipady=8
         )
 
-
         tk.Button(
             form,
             text="Create Account",
@@ -236,15 +217,12 @@ class AccountMixin:
             ipady=8
         )
 
-
     # =====================================================
     # SIGNUP
     # =====================================================
 
     def show_signup(self):
-
         self.clear_content()
-
 
         title = tk.Label(
             self.content,
@@ -253,11 +231,7 @@ class AccountMixin:
             fg=WHITE,
             font=("Arial", 30, "bold")
         )
-
-        title.pack(
-            pady=30
-        )
-
+        title.pack(pady=30)
 
         form = tk.Frame(
             self.content,
@@ -265,14 +239,9 @@ class AccountMixin:
             padx=40,
             pady=40
         )
-
-        form.pack(
-            ipadx=100
-        )
-
+        form.pack(ipadx=100)
 
         entries = {}
-
 
         fields = [
             ("Full Name (letters and spaces only)", "name"),
@@ -280,19 +249,14 @@ class AccountMixin:
             ("Password (8+ characters: uppercase, lowercase, and number)", "password")
         ]
 
-
         for label_text, key in fields:
-
             tk.Label(
                 form,
                 text=label_text,
                 bg=CARD,
                 fg=TEXT,
                 font=("Arial", 11)
-            ).pack(
-                anchor="w"
-            )
-
+            ).pack(anchor="w")
 
             entry = tk.Entry(
                 form,
@@ -303,20 +267,14 @@ class AccountMixin:
                 font=("Arial", 12)
             )
 
-
             if key == "password":
-
-                entry.config(
-                    show="*"
-                )
-
+                entry.config(show="*")
 
             entry.pack(
                 fill="x",
                 pady=(5, 15),
                 ipady=8
             )
-
 
             entries[key] = entry
 
@@ -333,45 +291,30 @@ class AccountMixin:
                 password=(key == "password")
             )
 
-
         def signup():
-
             name = (
-                ""
-                if entries["name"].has_placeholder.get()
+                "" if entries["name"].has_placeholder.get()
                 else entries["name"].get().strip()
             )
 
-
             email = (
-                ""
-                if entries["email"].has_placeholder.get()
+                "" if entries["email"].has_placeholder.get()
                 else entries["email"].get().strip()
             )
 
-
             password = (
-                ""
-                if entries["password"].has_placeholder.get()
+                "" if entries["password"].has_placeholder.get()
                 else entries["password"].get()
             )
 
-
-            if (
-                not name
-                or not email
-                or not password
-            ):
-
+            if not name or not email or not password:
                 messagebox.showwarning(
                     "Signup",
                     "Please fill all fields."
                 )
-
                 return
 
             if not self.is_valid_name(name):
-
                 messagebox.showwarning(
                     "Signup",
                     "Your name must contain only letters and spaces."
@@ -379,7 +322,6 @@ class AccountMixin:
                 return
 
             if not self.is_valid_email(email):
-
                 messagebox.showwarning(
                     "Signup",
                     "Enter a valid email address."
@@ -387,13 +329,11 @@ class AccountMixin:
                 return
 
             if not self.is_valid_password(password):
-
                 messagebox.showwarning(
                     "Signup",
                     "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number."
                 )
                 return
-
 
             success = database.create_user(
                 name,
@@ -401,9 +341,7 @@ class AccountMixin:
                 password
             )
 
-
             if success:
-
                 messagebox.showinfo(
                     "Success",
                     "Account created successfully!"
@@ -411,14 +349,11 @@ class AccountMixin:
 
                 self.show_login()
 
-
             else:
-
                 messagebox.showerror(
                     "Signup Failed",
                     "An account with this email already exists."
                 )
-
 
         tk.Button(
             form,
