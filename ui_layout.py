@@ -420,9 +420,10 @@ class LayoutMixin:
 
     # =====================================================
     # SEARCH PLACEHOLDER
-    # =====================================================
+    # ===================================================== 
 
     def clear_search_placeholder(self, event=None):
+
 
         if self.search_entry.get() == "Search movies and TV shows...":
             self.search_entry.delete(
