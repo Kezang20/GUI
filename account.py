@@ -1,11 +1,66 @@
+import re
 import tkinter as tk
 from tkinter import messagebox
 
 import database
-from config import ACCENT, ACCENT_HOVER, BG, CARD, CARD_HOVER, TEXT, WHITE
+from config import ACCENT, ACCENT_HOVER, BG, CARD, CARD_HOVER, MUTED, TEXT, WHITE
 
 
 class AccountMixin:
+
+    def add_placeholder(self, entry, placeholder, password=False):
+
+        entry.placeholder = placeholder
+        entry.has_placeholder = tk.BooleanVar(value=True)
+        entry.insert(0, placeholder)
+        entry.config(fg=MUTED)
+
+        if password:
+            entry.config(show="")
+
+        def focus_in(event):
+
+            if entry.has_placeholder.get():
+                entry.delete(0, tk.END)
+                entry.config(fg=WHITE)
+                if password:
+                    entry.config(show="*")
+                entry.has_placeholder.set(False)
+
+        def focus_out(event):
+
+            if not entry.get():
+                entry.insert(0, placeholder)
+                entry.config(fg=MUTED)
+                entry.has_placeholder.set(True)
+                if password:
+                    entry.config(show="")
+
+        entry.bind("<FocusIn>", focus_in)
+        entry.bind("<FocusOut>", focus_out)
+
+    def is_valid_email(self, email):
+
+        pattern = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+        return re.match(pattern, email) is not None
+
+
+    def is_valid_name(self, name):
+
+        return bool(name) and all(
+            character.isalpha() or character == " "
+            for character in name
+        )
+
+
+    def is_valid_password(self, password):
+
+        return (
+            len(password) >= 8
+            and any(character.isupper() for character in password)
+            and any(character.islower() for character in password)
+            and any(character.isdigit() for character in password)
+        )
 
     def show_login(self):
 
@@ -39,7 +94,7 @@ class AccountMixin:
 
         tk.Label(
             form,
-            text="Email",
+            text="Email (e.g. Dorji@gmail.com: must contain @ and a domain)",
             bg=CARD,
             fg=TEXT,
             font=("Arial", 11)
@@ -62,6 +117,7 @@ class AccountMixin:
             pady=(5, 20),
             ipady=8
         )
+        self.add_placeholder(email, "Enter your email (e.g. Dorji@gmail.com)")
 
 
         tk.Label(
@@ -90,13 +146,33 @@ class AccountMixin:
             pady=(5, 20),
             ipady=8
         )
+        self.add_placeholder(password, "Enter your password", password=True)
 
 
         def login():
 
+            login_email = "" if email.has_placeholder.get() else email.get().strip()
+            login_password = "" if password.has_placeholder.get() else password.get()
+
+            if not login_email or not login_password:
+
+                messagebox.showwarning(
+                    "Login",
+                    "Please enter both email and password."
+                )
+                return
+
+            if not self.is_valid_email(login_email):
+
+                messagebox.showwarning(
+                    "Login",
+                    "Enter a valid email address."
+                )
+                return
+
             user = database.login_user(
-                email.get(),
-                password.get()
+                login_email,
+                login_password
             )
 
 
@@ -199,9 +275,9 @@ class AccountMixin:
 
 
         fields = [
-            ("Full Name", "name"),
-            ("Email", "email"),
-            ("Password", "password")
+            ("Full Name (letters and spaces only)", "name"),
+            ("Email (e.g. Dorji@gmail.com: must contain @ and a domain)", "email"),
+            ("Password (8+ characters: uppercase, lowercase, and number)", "password")
         ]
 
 
@@ -244,22 +320,41 @@ class AccountMixin:
 
             entries[key] = entry
 
+        placeholders = {
+            "name": "Enter your name",
+            "email": "Enter your email (e.g. Dorji@gmail.com)",
+            "password": "Enter your password"
+        }
+
+        for key, placeholder in placeholders.items():
+            self.add_placeholder(
+                entries[key],
+                placeholder,
+                password=(key == "password")
+            )
+
 
         def signup():
 
-            name = entries[
-                "name"
-            ].get().strip()
+            name = (
+                ""
+                if entries["name"].has_placeholder.get()
+                else entries["name"].get().strip()
+            )
 
 
-            email = entries[
-                "email"
-            ].get().strip()
+            email = (
+                ""
+                if entries["email"].has_placeholder.get()
+                else entries["email"].get().strip()
+            )
 
 
-            password = entries[
-                "password"
-            ].get()
+            password = (
+                ""
+                if entries["password"].has_placeholder.get()
+                else entries["password"].get()
+            )
 
 
             if (
@@ -273,6 +368,30 @@ class AccountMixin:
                     "Please fill all fields."
                 )
 
+                return
+
+            if not self.is_valid_name(name):
+
+                messagebox.showwarning(
+                    "Signup",
+                    "Your name must contain only letters and spaces."
+                )
+                return
+
+            if not self.is_valid_email(email):
+
+                messagebox.showwarning(
+                    "Signup",
+                    "Enter a valid email address."
+                )
+                return
+
+            if not self.is_valid_password(password):
+
+                messagebox.showwarning(
+                    "Signup",
+                    "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number."
+                )
                 return
 
 
@@ -316,5 +435,3 @@ class AccountMixin:
             fill="x",
             ipady=8
         )
-
-
